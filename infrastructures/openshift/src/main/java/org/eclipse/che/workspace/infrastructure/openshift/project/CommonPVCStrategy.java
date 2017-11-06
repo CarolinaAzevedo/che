@@ -48,7 +48,7 @@ public class CommonPVCStrategy implements WorkspacePVCStrategy {
   private final String pvcName;
   private final String pvcAccessMode;
   private final String projectsPath;
-  private final PVCHelper pvcHelper;
+  private final CommonStrategyPVCHelper pvcHelper;
 
   @Inject
   public CommonPVCStrategy(
@@ -57,7 +57,7 @@ public class CommonPVCStrategy implements WorkspacePVCStrategy {
       @Named("che.infra.openshift.pvc.quantity") String pvcQuantity,
       @Named("che.infra.openshift.pvc.access_mode") String pvcAccessMode,
       @Named("che.workspace.projects.storage") String projectFolderPath,
-      PVCHelper pvcHelper) {
+      CommonStrategyPVCHelper pvcHelper) {
     this.projectName = projectName;
     this.pvcName = pvcName;
     this.pvcQuantity = pvcQuantity;

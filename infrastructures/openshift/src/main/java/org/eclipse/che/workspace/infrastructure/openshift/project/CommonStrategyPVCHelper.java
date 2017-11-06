@@ -12,7 +12,6 @@ import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.openshift.client.OpenShiftClient;
 import java.util.Arrays;
-import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -36,12 +35,9 @@ import org.slf4j.LoggerFactory;
  * @author Anton Korneta
  */
 @Singleton
-public class PVCHelper {
+public class CommonStrategyPVCHelper {
 
-  private static final Logger LOG = LoggerFactory.getLogger(PVCHelper.class);
-
-  private Pattern t =
-      Pattern.compile("[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*");
+  private static final Logger LOG = LoggerFactory.getLogger(CommonStrategyPVCHelper.class);
 
   private static final String POD_PHASE_SUCCEEDED = "Succeeded";
   private static final String POD_PHASE_FAILED = "Failed";
@@ -49,7 +45,7 @@ public class PVCHelper {
   private static final String RESTART_POLICY = "Never";
 
   private final String pvcName;
-  private final String projectFolderPath;
+  private final String projectsPath;
   private final String jobImage;
   private final String jobMemoryLimit;
   private final OpenShiftClientFactory clientFactory;
@@ -57,14 +53,14 @@ public class PVCHelper {
   private static final String[] RM_DIR_WORKSPACE_COMMAND = new String[] {"rm", "-rf"};
 
   @Inject
-  public PVCHelper(
+  public CommonStrategyPVCHelper(
       @Named("che.infra.openshift.pvc.name") String pvcName,
-      @Named("che.workspace.projects.storage") String projectFolderPath,
+      @Named("che.workspace.projects.storage") String projectsPath,
       @Named("che.openshift.jobs.image") String jobImage,
       @Named("che.openshift.jobs.memorylimit") String jobMemoryLimit,
       OpenShiftClientFactory clientFactory) {
     this.pvcName = pvcName;
-    this.projectFolderPath = projectFolderPath;
+    this.projectsPath = projectsPath;
     this.jobImage = jobImage;
     this.jobMemoryLimit = jobMemoryLimit;
     this.clientFactory = clientFactory;
@@ -88,7 +84,7 @@ public class PVCHelper {
             .withPrivileged(false)
             .endSecurityContext()
             .withCommand(jobCommand)
-            .withVolumeMounts(newVolumeMount(pvcName, projectFolderPath, null))
+            .withVolumeMounts(newVolumeMount(pvcName, projectsPath, null))
             .withNewResources()
             .withLimits(singletonMap("memory", new Quantity(jobMemoryLimit)))
             .endResources()
